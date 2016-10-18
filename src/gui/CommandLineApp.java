@@ -11,19 +11,97 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.Iterator;
 import java.util.ArrayList;
+import java.util.Scanner;
 
 /**
  */
 public class CommandLineApp {
 
     public static void main(String[] args) {
-        try {
-            String url = buildSimpleQueryStatement(Constants.UPCOMING);
-            String body = getRequest(url);
-            JsonNode node = buildJsonNode(body);
-            ArrayList<JsonNode> overviewFound = parseTagFromResult(node, "reacher", Constants.OVERVIEW_JSON);
-        } catch (Exception e) {
-            e.printStackTrace();
+        //main menu loop
+        boolean continueMainMenu = true;
+        while(continueMainMenu){
+            menuSeparator();
+            displayMainMenu();
+            try {
+                continueMainMenu = handleMainMenuRequest(userInput());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    /**
+     * Used at beginning of new menu to separate from previous menu.
+     */
+    private static void menuSeparator(){
+        output("---------------------------------");
+    }
+
+    /**
+     * Output a line of text to the user followed by newline char.
+     * @param str string to display to the user.
+     */
+    private static void output(String str){
+        System.out.println(str);
+    }
+
+    /**
+     * Retrieve user input for a given task.
+     * @return String representation of the user's input.
+     */
+    private static String userInput(){
+        Scanner input = new Scanner(System.in);
+        return input.nextLine();
+    }
+
+    /**
+     * Display the main menu.
+     */
+    private static void displayMainMenu(){
+        output("Welcome to Movie App.");
+        output("0. Get Top Rated");
+        output("1. Get Now Playing");
+        output("2. Get Upcoming");
+        output("Exit.");
+    }
+
+    /**
+     * Handle main menu requests from the user.
+     * @param choice from the user. Act only on valid choices.
+     * @return true to continue main menu, false to stop and exit.
+     * @throws Exception if json node parsing fails.
+     */
+    private static boolean handleMainMenuRequest(String choice) throws Exception{
+        String url = null;
+        switch(choice){
+            case "Exit":
+            case "exit":
+                return false;
+            case "0":
+                url = buildSimpleQueryStatement(Constants.TOP_RATED);
+                break;
+            case "1":
+                url = buildSimpleQueryStatement(Constants.NOW_PLAYING);
+                break;
+            case "2":
+                url = buildSimpleQueryStatement(Constants.UPCOMING);
+                break;
+        }
+        String result = getRequest(url);
+        JsonNode rootNode = buildJsonNode(result);
+        printJsonRootNodeMovies(rootNode);
+        return true;
+    }
+
+    /**
+     * Print all movie titles for a given jsonRoot node.
+     * @param rootNode to have all movies printed from.
+     */
+    private static void printJsonRootNodeMovies(JsonNode rootNode){
+        JsonNode resultsNode = rootNode.get(Constants.RESULTS_JSON);
+        for (JsonNode nextNode : resultsNode) {
+            output(nextNode.get(Constants.TITLE_JSON).asText());
         }
     }
 
