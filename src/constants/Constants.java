@@ -9,4 +9,9 @@ public class Constants {
     public static final String NOW_PLAYING = "now_playing";
     public static final String UPCOMING = "upcoming";
     public static final String MOVIE_DB_ADR = "https://api.themoviedb.org/";
+
+    /*Json keys*/
+    public static final String RESULTS_JSON = "results";
+    public static final String OVERVIEW_JSON = "overview";
+    public static final String TITLE_JSON = "title";
 }
