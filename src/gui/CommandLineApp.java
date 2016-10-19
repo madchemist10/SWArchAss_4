@@ -126,7 +126,7 @@ public class CommandLineApp {
     private static void printJsonRootNodeMovies(JsonNode rootNode){
         JsonNode resultsNode = rootNode.get(Constants.RESULTS_JSON);
         for (JsonNode nextNode : resultsNode) {
-            output(nextNode.get(Constants.TITLE_JSON).asText());
+            printJsonNode(nextNode);
         }
     }
 
