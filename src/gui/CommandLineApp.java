@@ -9,11 +9,11 @@ import org.apache.commons.io.IOUtils;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.Iterator;
-import java.util.ArrayList;
-import java.util.Scanner;
+import java.util.*;
 
 /**
+ * Command line application that allows the query of data from
+ * the Movie database api.
  */
 public class CommandLineApp {
 
@@ -79,19 +79,40 @@ public class CommandLineApp {
             case "exit":
                 return false;
             case "0":
-                url = buildSimpleQueryStatement(Constants.TOP_RATED);
+                url = buildSimpleMovieStatement(Constants.TOP_RATED);
                 break;
             case "1":
-                url = buildSimpleQueryStatement(Constants.NOW_PLAYING);
+                url = buildSimpleMovieStatement(Constants.NOW_PLAYING);
                 break;
             case "2":
-                url = buildSimpleQueryStatement(Constants.UPCOMING);
+                url = buildSimpleMovieStatement(Constants.UPCOMING);
                 break;
         }
         String result = getRequest(url);
         JsonNode rootNode = buildJsonNode(result);
         printJsonRootNodeMovies(rootNode);
+        processSearch(rootNode);
         return true;
+    }
+
+    /**
+     * Process a user's keyword to search for.
+     * @throws Exception if the retrieval of nodes fails.
+     */
+    private static void processSearch(JsonNode rootNode) throws Exception{
+        menuSeparator();
+        output("Enter search term: ");
+        String searchTerm = userInput();
+        //retrieve list of overviews that have tag searched
+        ArrayList<JsonNode> overviewList = parseTagFromResult(rootNode,searchTerm,Constants.OVERVIEW_JSON);
+        //retrieve list of titles that have tag searched
+        ArrayList<JsonNode> titleList = parseTagFromResult(rootNode,searchTerm,Constants.TITLE_JSON);
+        ArrayList<JsonNode> combinedList = new ArrayList<>();
+        //create the combined list to maintain order of the original search
+        combinedList.addAll(overviewList);
+        combinedList.addAll(titleList);
+        //display each json node.
+        combinedList.forEach(CommandLineApp::printJsonNode);
     }
 
     /**
@@ -106,7 +127,18 @@ public class CommandLineApp {
     }
 
     /**
-     * Construct a simple query statement for determining the url
+     * Print a movie's title, release date, and overview.
+     * @param node that contains the movie's data.
+     */
+    private static void printJsonNode(JsonNode node){
+        String title = node.get(Constants.TITLE_JSON).asText();
+        String releaseDate = node.get(Constants.RELEASE_JSON).asText();
+        String overview = node.get(Constants.OVERVIEW_JSON).asText();
+        output(title+":\t"+releaseDate+":\t"+overview);
+    }
+
+    /**
+     * Construct a simple movie statement for determining the url
      * for a given query type.
      * {@link Constants#NOW_PLAYING}
      * {@link Constants#UPCOMING}
@@ -114,7 +146,7 @@ public class CommandLineApp {
      * @param queryType type of query to perform.
      * @return String format of the url to be used in the get request.
      */
-    private static String buildSimpleQueryStatement(String queryType){
+    private static String buildSimpleMovieStatement(String queryType){
         return Constants.MOVIE_DB_ADR+"/3/movie/"+queryType+"?api_key="+ Constants.API_KEY;
     }
 

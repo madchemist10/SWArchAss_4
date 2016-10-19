@@ -14,4 +14,5 @@ public class Constants {
     public static final String RESULTS_JSON = "results";
     public static final String OVERVIEW_JSON = "overview";
     public static final String TITLE_JSON = "title";
+    public static final String RELEASE_JSON = "release_date";
 }
