@@ -109,8 +109,12 @@ public class CommandLineApp {
         ArrayList<JsonNode> titleList = parseTagFromResult(rootNode,searchTerm,Constants.TITLE_JSON);
         ArrayList<JsonNode> combinedList = new ArrayList<>();
         //create the combined list to maintain order of the original search
-        combinedList.addAll(overviewList);
         combinedList.addAll(titleList);
+        for(JsonNode node: overviewList){
+            if(!combinedList.contains(node)){
+                combinedList.add(node);
+            }
+        }
         //display each json node.
         combinedList.forEach(CommandLineApp::printJsonNode);
     }
